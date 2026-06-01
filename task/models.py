@@ -35,11 +35,11 @@ class Task(models.Model):
 
     title = models.CharField(max_length=150, verbose_name='наименование')
     parent_task = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True,
-                                 related_name="children_tasks", verbose_name='ссылка на родительскую задачу')
-    executor = models.ManyToManyField('Employee', max_length = 150, verbose_name = 'исполнитель',
-                                      blank = True, related_name = "task")
+                                    related_name="children_tasks", verbose_name='ссылка на родительскую задачу')
+    executor = models.ManyToManyField('Employee', max_length=150, verbose_name='исполнитель',
+                                      blank=True, related_name="task")
     period = models.DateTimeField(verbose_name='срок')
-    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='created', verbose_name = 'статус')
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='created', verbose_name='статус')
 
     def __str__(self):
         return f'Задача: "{self.title}", статус: {self.status}'
