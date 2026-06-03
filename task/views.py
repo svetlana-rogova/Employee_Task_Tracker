@@ -14,6 +14,16 @@ class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
 
+    @action(detail=False, methods=['get'])
+    def important(self, request):
+        """
+        Эндпоинт важных задач (те задачи, которые не взяты в работу, но от которых зависят другие задачи,
+        взятые в работу.)
+        """
+        important_task = Task.objects.filter(status='created', children_tasks__status='in_progress').distinct()
+        serializer = TaskSerializer(important_task, many=True)
+        return Response(serializer.data)
+
 
 class EmployeeViewSet(viewsets.ModelViewSet):
     """
@@ -27,7 +37,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         """
         Эндпоинт для вывода сотрудников с активными задачами и сортировкой по ним
         """
-        employee_tasks = Employee.objects.filter(task__status='in_progress').annotate(
-            task_count_progress=Count('task')).order_by('-task_count_progress')
+        employee_tasks = Employee.objects.annotate(
+            task_count_progress=Count('task', filter=Q(task__status='in_progress'))).order_by('-task_count_progress')
         serializer = EmployeeSerializer(employee_tasks, many=True)
         return Response(serializer.data)
