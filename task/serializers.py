@@ -29,10 +29,6 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = ['title', 'executor', 'period', 'status', 'children_task', 'parent_task']
 
 
-
-
-
-
 class EmployeeSerializer(serializers.ModelSerializer):
     """
     Сериализатор для сотрудника
