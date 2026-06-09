@@ -54,7 +54,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 
             result.append({
                 'important_task': task.title,
-                'period': task.period,
+                'period': task.period.strftime("%d.%m.%Y %H:%M"),
                 'employees': employee_names
             })
 
