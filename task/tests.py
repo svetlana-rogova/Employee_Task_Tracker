@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
@@ -34,25 +33,25 @@ class TaskTestCase(APITestCase):
 
         self.parent_task1 = Task.objects.create(
             title="Презентация нашей компании в сети",
-            period=datetime(2026, 6, 2, 10, 0),
+            period="2037-06-04T12:00:00Z",
             status="in_progress"
         )
 
         self.parent_task = Task.objects.create(
             title="Работа над сайтом нашей компании",
-            period=datetime(2026, 6, 2, 10, 0),
+            period="2037-06-04T12:00:00Z",
             status="created"
         )
 
         self.child_task = Task.objects.create(
             title="Разработка главной страницы",
-            period=datetime(2026, 6, 3, 11, 0),
+            period="2037-06-04T12:00:00Z",
             status="in_progress"
         )
 
         self.task_no_important = Task.objects.create(
             title="Обычная задача",
-            period=datetime(2026, 6, 4, 12, 0),
+            period="2037-06-04T12:00:00Z",
             status="created"
         )
 
@@ -70,7 +69,7 @@ class TaskTestCase(APITestCase):
         """
         data = {
             "title": "Новая задача",
-            "period": "2026-06-02T10:00:00Z",
+            "period": "2037-06-02T10:00:00Z",
             "status": "created"
         }
         response = self.client.post(reverse("task:task-list"), data)
@@ -83,7 +82,7 @@ class TaskTestCase(APITestCase):
         """
         data = {
             "title": "Обычная задача 2",
-            "period": "2026-06-02T10:00:00Z",
+            "period": "2037-06-02T10:00:00Z",
             "status": "created"
         }
 
@@ -155,7 +154,6 @@ class TaskTestCase(APITestCase):
         response = self.client.get(reverse("task:task-important"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
-        print(response.data)
         self.assertEqual(response.data[0]['important_task'], 'Работа над сайтом нашей компании')
         self.assertCountEqual(response.data[0]['employees'],
                               ['Сотрудник без задач test2 ', 'Сотрудник для главной задачи test3 '])
@@ -167,7 +165,6 @@ class TaskTestCase(APITestCase):
         response = self.client.get(reverse("task:employee-busy"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 3)
-        print(response.data)
         self.assertEqual(response.data[0]['first_name'], 'test3')
         self.assertEqual(response.data[1]['first_name'], 'test')
         self.assertEqual(response.data[2]['first_name'], 'test2')
@@ -203,3 +200,52 @@ class TaskTestCase(APITestCase):
         """
         response = self.client.get(reverse("task:task-detail", args=[999]))
         self.assertEqual(response.status_code, 404)
+
+    def test_create_task_bad_period(self):
+        """
+        Проверка на создание задачи со сроком в прошлом
+        """
+        data = {
+            "title": "Разработка главной страницы нашего сайта",
+            "executor": [],
+            "period": "2022-06-11T19:29:17Z",
+            "status": "done",
+        }
+
+        response = self.client.post(reverse("task:task-list"), data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data["non_field_errors"][0],
+            'Срок выполнения не может быть в прошлом.',
+        )
+
+    def test_update_task_bad_parent(self):
+        """
+        Проверка на создание задачи со ссылкой на саму себя в качестве родителя
+        """
+        response = self.client.patch(
+            reverse("task:task-detail", args=[self.task_no_important.id]),
+            {"parent_task": self.task_no_important.id}
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data["non_field_errors"][0],
+            'Задача не может быть родительской для самой себя.',
+        )
+
+    def test_create_task_bad_executor(self):
+        """
+        Проверка на создание задачи без исполнителя
+        """
+        data = {
+            "title": "Разработка главной страницы нашего сайта",
+            "executor": [],
+            "period": "2037-06-11T19:29:17Z",
+            "status": "in_progress",
+        }
+        response = self.client.post(reverse("task:task-list"), data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data["non_field_errors"][0],
+            'Для задачи со статусом in_progress необходимо назначить исполнителя.',
+        )

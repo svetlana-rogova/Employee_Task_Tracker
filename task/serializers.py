@@ -25,7 +25,6 @@ class TaskSerializer(serializers.ModelSerializer):
         slug_field='title'
     )
 
-
     children_task = serializers.SlugRelatedField(
         source='children_tasks',
         many=True,
@@ -38,7 +37,7 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'executor', 'period', 'status', 'children_task', 'parent_task', 'parent_task_title']
 
     def validate(self, attrs):
-        period = attrs.get("period")
+        period = attrs.get("period", self.instance.period if self.instance else None)
         parent_task = attrs.get('parent_task')
         status = attrs.get('status')
         executor = attrs.get('executor')
