@@ -1,6 +1,8 @@
-FROM python 3.13-slim
+FROM python:3.13-slim
 
 WORKDIR /app
+
+RUN pip install poetry
 
 ENV POETRY_VIRTUALENVS_CREATE=false
 
@@ -10,6 +12,6 @@ RUN poetry install --no-root
 
 COPY . .
 
-EXPOSE 8000
+EXPOSE 8003
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8003"]
