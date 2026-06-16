@@ -1,0 +1,54 @@
+{% extends 'task/main.html' %}
+{% block title %}Список сотрудников{% endblock %}
+
+{% block content %}
+
+<div class="col p-4 d-flex flex-column align-items-center">
+
+    <h1 class="text-center mb-4">
+        Список всех сотрудников
+    </h1>
+
+    <table class="table table-striped table-hover" id="employee-table">
+        <thead>
+        <tr>
+            <th>Фамилия</th>
+            <th>Имя</th>
+            <th>Отчество</th>
+            <th>Должность</th>
+            <th>Активные задачи</th>
+        </tr>
+        </thead>
+
+        <tbody id="employee-body">
+        </tbody>
+    </table>
+
+</div>
+
+<script>
+async function loadTasks() {
+    const response = await fetch('/api/employee/');
+    const data = await response.json();
+
+    const body = document.getElementById('employee-body');
+    body.innerHTML = '';
+
+    data.forEach(employee => {
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>${employee.last_name}</td>
+            <td>${employee.first_name}</td>
+            <td>${employee.middle_name}</td>
+            <td>${employee.post}</td>
+            <td>${employee.active_tasks}</td>
+        `;
+
+        body.appendChild(row);
+    });
+}
+
+loadTasks();
+</script>
+{% endblock %}

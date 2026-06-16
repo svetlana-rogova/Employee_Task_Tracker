@@ -1,10 +1,12 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from django.views.generic import TemplateView
 
 from task.models import Task, Employee
 from task.serializers import TaskSerializer, EmployeeSerializer
 from django.db.models import Count, Q, Min
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -13,6 +15,8 @@ class TaskViewSet(viewsets.ModelViewSet):
     """
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['status']
 
     @action(detail=False, methods=['get'])
     def important(self, request):
@@ -77,3 +81,19 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             task_count_progress=Count('task', filter=Q(task__status='in_progress'))).order_by('-task_count_progress')
         serializer = EmployeeSerializer(employee_tasks, many=True)
         return Response(serializer.data)
+
+
+class TaskPageView(TemplateView):
+    template_name = "task/home.html"
+
+
+class AddTaskPageView(TemplateView):
+    template_name = "task/add_task.html"
+
+
+class ImportantTaskPageView(TemplateView):
+    template_name = "task/important.html"
+
+
+class EmployeePageView(TemplateView):
+    template_name = "task/employee.html"
