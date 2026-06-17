@@ -39,6 +39,8 @@ class Task(models.Model):
     executor = models.ManyToManyField('Employee', verbose_name='исполнитель', blank=True, related_name="task")
     period = models.DateTimeField(verbose_name='срок')
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='created', verbose_name='статус')
+    owner = models.ForeignKey("users.CustomUser", on_delete=models.CASCADE, related_name='task', null=True,
+                              blank=True)
 
     def __str__(self):
         return f'Задача: "{self.title}", статус: {self.status}'

@@ -72,6 +72,9 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
     @action(detail=False, methods=['get'])
     def busy(self, request):
         """
