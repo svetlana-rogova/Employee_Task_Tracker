@@ -3,6 +3,9 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
+    """
+    Модель пользователя
+    """
     first_name = models.CharField(max_length=150, verbose_name='имя')
     last_name = models.CharField(max_length=150, verbose_name='фамилия')
     middle_name = models.CharField(max_length=150, blank=True, verbose_name='отчество')

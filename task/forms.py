@@ -4,11 +4,20 @@ from task.models import Task
 
 
 class TaskForm(forms.ModelForm):
+    """
+    Класс, который задает форму для задачи
+    """
     class Meta:
         model = Task
         fields = ['title', 'status', 'period', 'parent_task', 'executor']
 
     def clean(self):
+        """
+        Дополнительная валидация формы.
+
+        Проверяет, что для задачи со статусом 'in_progress'
+        назначен хотя бы один исполнитель.
+        """
         cleaned_data = super().clean()
 
         status = cleaned_data.get('status')
@@ -20,6 +29,9 @@ class TaskForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True, user=None):
+        """
+        Сохраняет задачу и назначает владельца.
+        """
         obj = super().save(commit=False)
 
         if user:
@@ -28,5 +40,4 @@ class TaskForm(forms.ModelForm):
         if commit:
             obj.save()
             self.save_m2m()
-
         return obj
