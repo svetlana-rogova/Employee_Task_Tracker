@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from task.views import (TaskViewSet, EmployeeViewSet, TaskPageView, AddTaskPageView, ImportantTaskPageView,
-                        EmployeePageView)
+                        EmployeePageView, TaskEditView)
 from django.urls import path, include
 
 app_name = 'task'
@@ -16,4 +16,5 @@ urlpatterns = [
     path("task_add/", AddTaskPageView.as_view(), name='add_task'),
     path("important/", ImportantTaskPageView.as_view(), name='important'),
     path("api/", include(router.urls)),
+    path('task/<int:pk>/edit/', TaskEditView.as_view(), name='edit'),
 ]

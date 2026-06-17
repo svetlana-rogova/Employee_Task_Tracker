@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, UpdateView, CreateView
 
 from task.models import Task, Employee
 from task.serializers import TaskSerializer, EmployeeSerializer
@@ -87,7 +87,10 @@ class TaskPageView(TemplateView):
     template_name = "task/home.html"
 
 
-class AddTaskPageView(TemplateView):
+class AddTaskPageView(CreateView):
+    model = Task
+    fields = ['title', 'status', 'period', 'parent_task', 'executor']
+    success_url = '/'
     template_name = "task/add_task.html"
 
 
@@ -97,3 +100,10 @@ class ImportantTaskPageView(TemplateView):
 
 class EmployeePageView(TemplateView):
     template_name = "task/employee.html"
+
+
+class TaskEditView(UpdateView):
+    model = Task
+    fields = ['title', 'status', 'period', 'parent_task', 'executor']
+    template_name = 'task/edit.html'
+    success_url = '/'
