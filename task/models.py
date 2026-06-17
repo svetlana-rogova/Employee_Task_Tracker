@@ -1,4 +1,5 @@
 from django.db import models
+from task.validators import validate_period, validate_not_self_parent
 
 
 class Employee(models.Model):
@@ -49,3 +50,17 @@ class Task(models.Model):
         verbose_name = 'задача'
         verbose_name_plural = 'задачи'
         ordering = ['period']
+
+    def clean(self):
+        """
+        Выполняет дополнительную валидацию модели.
+        """
+        validate_period(self.period)
+        validate_not_self_parent(self, self.parent_task)
+
+    def save(self, *args, **kwargs):
+        """
+        Выполняет полную валидацию модели перед сохранением.
+        """
+        self.full_clean()
+        super().save(*args, **kwargs)
