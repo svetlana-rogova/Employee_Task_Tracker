@@ -2,6 +2,7 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
 from task.models import Task, Employee
+from users.models import CustomUser
 
 
 class TaskTestCase(APITestCase):
@@ -12,6 +13,12 @@ class TaskTestCase(APITestCase):
         """
 
         self.client = APIClient()
+
+        self.user = CustomUser.objects.create_user(
+            username="test", email="user@test.com", password="1234", first_name="test", last_name="test")
+
+        self.owner_user = CustomUser.objects.create_user(
+            username="test2", email="user2@test.com", password="1234", first_name="test2", last_name="test2")
 
         self.one_employee = Employee.objects.create(
             first_name="test",
@@ -52,7 +59,8 @@ class TaskTestCase(APITestCase):
         self.task_no_important = Task.objects.create(
             title="Обычная задача",
             period="2037-06-04T12:00:00Z",
-            status="created"
+            status="created",
+            owner=self.owner_user
         )
 
         self.parent_task1.executor.add(self.three_employee)
@@ -67,6 +75,7 @@ class TaskTestCase(APITestCase):
         """
         Проверка на создание задачи
         """
+        self.client.force_authenticate(user=self.user)
         data = {
             "title": "Новая задача",
             "period": "2037-06-02T10:00:00Z",
@@ -86,6 +95,7 @@ class TaskTestCase(APITestCase):
             "status": "created"
         }
 
+        self.client.force_authenticate(user=self.owner_user)
         response = self.client.put(reverse("task:task-detail", args=[self.task_no_important.id]), data)
         self.assertEqual(response.status_code, 200)
 
@@ -101,6 +111,7 @@ class TaskTestCase(APITestCase):
         """
         Проверка на удаление задачи
         """
+        self.client.force_authenticate(user=self.owner_user)
         response = self.client.delete(reverse("task:task-detail", args=[self.task_no_important.id]))
         self.assertEqual(response.status_code, 204)
         self.assertEqual(Task.objects.count(), 3)
