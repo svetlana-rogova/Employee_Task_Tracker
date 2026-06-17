@@ -24,34 +24,80 @@
 </div>
 
 <script>
-async function loadTasks() {
-    const response = await fetch('/api/task/?status=create&status=in_progress');
+
+    function getCookie(name) {
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+
+    return cookieValue;
+}
+
+    function deleteTask(id) {
+    if (!confirm("Удалить задачу?")) return;
+
+    fetch(`/api/task/${id}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    }).then(() => location.reload());
+}
+
+    async function loadTasks() {
+    const response = await fetch('/api/task/');
     const tasks = await response.json();
 
     const body = document.getElementById('task-body');
-    body.innerHTML = '';
+    body.innerHTML = ''
+
+    tasks.sort((a, b) => {
+        if (a.status === 'done' && b.status !== 'done') return 1;
+        if (a.status !== 'done' && b.status === 'done') return -1;
+        return 0;
+    });
 
     tasks.forEach(task => {
         const row = document.createElement('tr');
+        const statusMap = {
+            created: 'Создана',
+            in_progress: 'В работе',
+            done: 'Завершена'
+        };
 
         row.innerHTML = `
             <td>${task.title}</td>
-            <td>${task.status}</td>
+            <td>${statusMap[task.status]}</td>
+            <td>${new Date(task.period).toLocaleString('ru-RU')}</td>
+            {% if user.is_authenticated %}
             <td>
-                <button class="btn btn-sm btn-warning" onclick="editTask(${task.id})">
+                 <a class="btn btn-warning btn-sm" href="/task/${task.id}/edit/">
                     Изменить
-                </button>
+                </a>
             </td>
             <td>
                 <button class="btn btn-sm btn-danger" onclick="deleteTask(${task.id})">
                     Удалить
                 </button>
             </td>
+            {% endif %}
         `;
 
         body.appendChild(row);
     });
 }
+
 
 loadTasks();
 </script>

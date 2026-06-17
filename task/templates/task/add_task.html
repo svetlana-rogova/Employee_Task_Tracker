@@ -2,97 +2,12 @@
 {% block title %}Добавление новой задачи{% endblock %}
 
 {% block content %}
+  <h2>Новая задача</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class = 'btn btn-primary'> Сохранить </button>
+  </form>
 
-<div class="col p-4 d-flex flex-column align-items-center">
 
-    <h1 class="text-center mb-4">
-        Добавление новой задачи
-    </h1>
-
-    <form id="task-form">
-        {% csrf_token %}
-
-        <div class="mb-3">
-            <label class="form-label">Название</label>
-            <input
-                type="text"
-                id="title"
-                class="form-control"
-                required>
-        </div>
-
-        <div class="mb-3">
-            <select id="parent_task" class="form-select">
-                <option value="">Без родительской задачи</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <select id="executor" class="form-select">
-                <option value="">Без исполнителя</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Статус</label>
-                <select id="status" class="form-select">
-                <option value="created">Создана</option>
-                <option value="in_progress">Выполняется</option>
-                <option value="done">Завершена</option>
-                </select>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Срок выполнения</label>
-            <input
-                type="datetime-local"
-                id="period"
-                class="form-control"
-                required>
-        </div>
-
-        <button type="submit" class="btn btn-primary">
-            Создать задачу
-        </button>
-
-    </form>
-
-<script>
-document.getElementById('task-form')
-    .addEventListener('submit', async function(event) {
-
-    event.preventDefault();
-
-    const title = document.getElementById('title').value;
-    const period = document.getElementById('period').value;
-    const parent_task = document.getElementById('parent_task').value;
-    const status = document.getElementById('status').value;
-    const csrftoken = document.querySelector(
-    '[name=csrfmiddlewaretoken]'
-).value;
-    const response = await fetch('/api/task/', {
-        method: 'POST',
-        headers: {
-    'Content-Type': 'application/json',
-    'X-CSRFToken': csrftoken
-},
-        body: JSON.stringify({
-            title: title,
-            period: period,
-            parent_task: parent_task || null,
-            status: status
-        })
-    });
-
-    if (response.ok) {
-        window.location.href = '/task/';
-    } else {
-        const error = await response.text();
-        console.log(error);
-        alert(error);
-    }
-});
-</script>
-
-</div>
 {% endblock %}
