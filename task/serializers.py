@@ -12,7 +12,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
     executor = serializers.SlugRelatedField(
         many=True,
-        read_only=True,
+        queryset=Employee.objects.all(),
         slug_field='last_name'
     )
 
