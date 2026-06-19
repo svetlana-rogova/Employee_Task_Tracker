@@ -1,0 +1,54 @@
+{% extends 'task/main.html' %}
+
+{% block title %}Важные задачи{% endblock %}
+
+{% block content %}
+<div class="col p-4">
+
+    <h1 class="text-center mb-4">
+        Важные задачи
+    </h1>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Задача</th>
+                <th>Срок</th>
+                <th>Подходящие сотрудники</th>
+            </tr>
+        </thead>
+
+        <tbody id="important-body">
+
+        </tbody>
+    </table>
+
+</div>
+
+<script>
+async function loadImportantTasks() {
+
+    const response = await fetch('/api/task/important/');
+    const tasks = await response.json();
+
+    const body = document.getElementById('important-body');
+
+    body.innerHTML = '';
+
+    tasks.forEach(task => {
+
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+            <td>${task.important_task}</td>
+            <td>${task.period}</td>
+            <td>${task.employees.join(', ')}</td>
+        `;
+
+        body.appendChild(row);
+    });
+}
+
+loadImportantTasks();
+</script>
+{% endblock %}

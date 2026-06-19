@@ -1,0 +1,15 @@
+.env
+.idea/
+.git/
+.htmlcov/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
+staticfiles/
+media/
+coverage.xml
+.coverage
+.DS_Store
